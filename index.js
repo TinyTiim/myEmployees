@@ -1,3 +1,5 @@
+
+// Included the database folder, console table, my logo, and my inquirer for my prompts
 const { prompt } = require("inquirer");
 const logo = require("asciiart-logo");
 const db = require("./db");
@@ -16,7 +18,7 @@ function init() {
 
   loadMainPrompts();
 }
-
+//All of the choices for the main page.
 function loadMainPrompts() {
   prompt([
     {
@@ -88,7 +90,7 @@ function loadMainPrompts() {
     }
   ]).then(res => {
     let choice = res.choice;
-    // Call the appropriate function depending on what the user chose
+    // This calls each choice to apporiate function
     switch (choice) {
       case "VIEW_EMPLOYEES":
         viewEmployees();
@@ -140,7 +142,7 @@ function loadMainPrompts() {
   )
 }
 
-// View all employees
+// Shows all employees
 function viewEmployees() {
   db.findAllEmployees()
     .then(([rows]) => {
@@ -150,7 +152,7 @@ function viewEmployees() {
     })
     .then(() => loadMainPrompts());
 }
-// View all employees that belong to a department
+// Shows employees to that certain department
 function viewEmployeesByDepartment() {
   db.findAllDepartments()
     .then(([rows]) => {
@@ -178,7 +180,7 @@ function viewEmployeesByDepartment() {
     });
 }
 
-// View all employees that report to a specific manager
+// Shows employees to the certain manager
 function viewEmployeesByManager() {
   db.findAllEmployees()
     .then(([rows]) => {
@@ -210,7 +212,7 @@ function viewEmployeesByManager() {
     });
 }
 
-// Delete an employee
+// This allows to delete a employee
 function removeEmployee() {
   db.findAllEmployees()
     .then(([rows]) => {
@@ -234,7 +236,7 @@ function removeEmployee() {
     })
 }
 
-// Update an employee's role
+// This allows you to choose and select what updated role to give a employee
 function updateEmployeeRole() {
   db.findAllEmployees()
     .then(([rows]) => {
@@ -278,7 +280,7 @@ function updateEmployeeRole() {
     })
 }
 
-// Update an employee's manager
+// This allows to select an employee and update their current manager
 function updateEmployeeManager() {
   db.findAllEmployees()
     .then(([rows]) => {
@@ -324,7 +326,7 @@ function updateEmployeeManager() {
 }
 
 
-// View all roles
+// Shows all avaible roles
 function viewRoles() {
   db.findAllRoles()
     .then(([rows]) => {
@@ -335,7 +337,7 @@ function viewRoles() {
     .then(() => loadMainPrompts());
 }
 
-// Add a role
+// Allows to add a role based on title, salary, and what deparment.
 function addRole() {
   db.findAllDepartments()
     .then(([rows]) => {
@@ -369,7 +371,7 @@ function addRole() {
     })
 }
 
-// Delete a role
+// Allows you to delete a certain role.
 function removeRole() {
   db.findAllRoles()
     .then(([rows]) => {
@@ -394,7 +396,7 @@ function removeRole() {
     })
 }
 
-// View all deparments
+// Allows you to view all current departments
 function viewDepartments() {
   db.findAllDepartments()
     .then(([rows]) => {
@@ -405,7 +407,7 @@ function viewDepartments() {
     .then(() => loadMainPrompts());
 }
 
-// Add a department
+// Entering a name to create a department
 function addDepartment() {
   prompt([
     {
@@ -421,7 +423,7 @@ function addDepartment() {
     })
 }
 
-// Delete a department
+// Allows you to remove a department and deletes all employees and roles assoicated with that deleted department
 function removeDepartment() {
   db.findAllDepartments()
     .then(([rows]) => {
@@ -444,7 +446,7 @@ function removeDepartment() {
     })
 }
 
-// View all departments and show their total utilized department budget
+// You can view the department budget which shows how much money that department is worth
 function viewUtilizedBudgetByDepartment() {
   db.viewDepartmentBudgets()
     .then(([rows]) => {
@@ -455,7 +457,7 @@ function viewUtilizedBudgetByDepartment() {
     .then(() => loadMainPrompts());
 }
 
-// Add an employee
+// This allows you to add a new employee by entering first and last name, then being prompted to choices for the employees role and manager
 function addEmployee() {
   prompt([
     {

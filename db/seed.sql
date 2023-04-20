@@ -1,5 +1,5 @@
 use employees;
-
+(/*)Below is the info for the tables in schema.sql(*/)
 INSERT INTO department
     (name)
 VALUES
