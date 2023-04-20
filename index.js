@@ -2,7 +2,7 @@ const { prompt } = require("inquirer");
 const logo = require("asciiart-logo");
 const db = require("./db");
 require("console.table");
-const connection = require("./db/connection");
+
 
 let employees = [];
 
@@ -183,9 +183,9 @@ function viewEmployeesByManager() {
   db.findAllEmployees()
     .then(([rows]) => {
       let managers = rows;
-      const managerChoices = managers.map(({ id, first_name, last_name }) => ({
-        name: `${first_name} ${last_name}`,
-        value: id
+      const managerChoices = managers.map(({ first_name, last_name }) => ({
+        name: `${first_name} ${last_name}`
+    
       }));
 
       prompt([
@@ -244,25 +244,38 @@ function updateEmployeeRole() {
         value: id
       }));
 
-        // Prompt the user for the employee and role to update
-  prompt([
-    {
-      type: "list",
-      name: "employee_id",
-      message: "Which employee's role do you want to update?",
-      choices: employeeChoices
-    },
-    {
-      type: "list",
-      name: "role_id",
-      message: "What is the employee's new role?",
-      choices: roleChoices
-    }
-  ])
-    .then(res => db.updateEmployeeRole(res.employee_id, res.role_id))
-    .then(() => console.log("\nEmployee's role has been updated\n"))
-    .then(() => loadMainPrompts())
-});
+      prompt([
+        {
+          type: "list",
+          name: "employeeId",
+          message: "Which employee's role do you want to update?",
+          choices: employeeChoices
+        }
+      ])
+        .then(res => {
+          let employeeId = res.employeeId;
+          db.findAllRoles()
+            .then(([rows]) => {
+              let roles = rows;
+              const roleChoices = roles.map(({ id, title }) => ({
+                name: title,
+                value: id
+              }));
+
+              prompt([
+                {
+                  type: "list",
+                  name: "roleId",
+                  message: "Which role do you want to assign the selected employee?",
+                  choices: roleChoices
+                }
+              ])
+                .then(res => db.updateEmployeeRole(employeeId, res.roleId))
+                .then(() => console.log("Updated employee's role"))
+                .then(() => loadMainPrompts())
+            });
+        });
+    })
 }
 
 // Update an employee's manager
@@ -309,6 +322,7 @@ function updateEmployeeManager() {
         })
     })
 }
+
 
 // View all roles
 function viewRoles() {
@@ -442,54 +456,74 @@ function viewUtilizedBudgetByDepartment() {
 }
 
 // Add an employee
-function addEmployee(roleChoices) {
-  db.findAllRoles()
-  .then(([rows]) => {
-    let roles = rows;
-    const roleChoices = roles.map(({ id, title }) => ({
-      name: title,
-      value: id
-    }));
-  })
-  const managerChoices = employees.map(({ id, first_name, last_name }) => ({
-    name: `${first_name} ${last_name}`,
-    value: id
-  }))
-    // Prompt the user for information about the new employee
-    managerChoices.unshift({ name: "None", value: null });
-    prompt([
-      {
-        name: "first_name",
-        message: "What is the employee's first name?",
-       
-      },
-      {
-        name: "last_name",
-        message: "What is the employee's last name?",
-        
-      },
-      {
-        type: "list",
-        name: "role_id",
-        message: "What is the employee's role?",
-        choices: roleChoices
-      },
-      {
-        type: "list",
-        name: "manager_id",
-        message: "Who is the employee's manager?",
-        choices: managerChoices
-      }
-    ])
-      .then(res => {
-        // Insert the new employee into the database
-        db.createEmployee(res)
-          .then(() => console.log(`\n${res.first_name} ${res.last_name} has been added to the database\n`))
-          .then(() => loadMainPrompts())
-      })
-  }
+function addEmployee() {
+  prompt([
+    {
+      name: "first_name",
+      message: "What is the employee's first name?"
+    },
+    {
+      name: "last_name",
+      message: "What is the employee's last name?"
+    }
+  ])
+    .then(res => {
+      let firstName = res.first_name;
+      let lastName = res.last_name;
 
-  
+      db.findAllRoles()
+        .then(([rows]) => {
+          let roles = rows;
+          const roleChoices = roles.map(({ id, title }) => ({
+            name: title,
+            value: id
+          }));
+
+          prompt({
+            type: "list",
+            name: "roleId",
+            message: "What is the employee's role?",
+            choices: roleChoices
+          })
+            .then(res => {
+              let roleId = res.roleId;
+
+              db.findAllEmployees()
+                .then(([rows]) => {
+                  let employees = rows;
+                  const managerChoices = employees.map(({ id, first_name, last_name }) => ({
+                    name: `${first_name} ${last_name}`,
+                    value: id
+                  }));
+
+                  managerChoices.unshift({ name: "None", value: null });
+
+                  prompt({
+                    type: "list",
+                    name: "managerId",
+                    message: "Who is the employee's manager?",
+                    choices: managerChoices
+                  })
+                    .then(res => {
+                      let employee = {
+                        manager_id: res.managerId,
+                        role_id: roleId,
+                        first_name: firstName,
+                        last_name: lastName
+                      }
+
+                      db.createEmployee(employee);
+                    })
+                    .then(() => console.log(
+                      `Added ${firstName} ${lastName} to the database`
+                    ))
+                    .then(() => loadMainPrompts())
+                })
+            })
+        })
+    })
+}
+
 // Exit the application
 function quit() {
   console.log("Goodbye!");
