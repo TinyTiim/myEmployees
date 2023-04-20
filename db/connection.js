@@ -1,17 +1,21 @@
-const mysql = require("mysql2");
+const mysql = require('mysql2');
 
 const connection = mysql.createConnection({
-  host: "localhost",
-  // Your username
-  user: "root",
-  // Your password
-  password: "egg",
-  database: "employees"
+  host: 'localhost',
+  user: 'root',
+  password: 'egghead7',
+  database: 'employees'
 });
 
-connection.query('SELECT * FROM my_table', function (err, results, fields) {
-  if (err) throw err;
-  console.log(results);
+// Test the connection
+connection.connect(function(err) {
+  if (err) {
+    console.error('Error connecting: ' + err.stack);
+    return;
+  }
+
+  console.log('Connected as id ' + connection.threadId);
 });
 
 module.exports = connection;
+
